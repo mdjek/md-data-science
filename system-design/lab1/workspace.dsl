@@ -64,7 +64,7 @@ workspace {
             api -> taskService "Запросы CRUD услуг"
             api -> paymentService "Запросы на проведение платежей"
 
-            user -> userService "Управление аакаунтом"
+            user -> userService "Управление аккаунтом"
             user -> orderService "Управление заказами"
             user -> taskService "Управление услугами"
 
@@ -109,7 +109,7 @@ workspace {
             taskService -> user
 
             user -> frontend "Добавление услуги в заказ"
-            frontend -> api "POST /orders/{orderId}/tasks"
+            frontend -> api "POST /orders/{orderId}/tasks/{taskId}"
             api -> orderService
             orderService -> orderDb
             orderService -> user
@@ -142,13 +142,13 @@ workspace {
             profiRu.userService -> user "Уведомление о создании пользователя"
 
             user -> profiRu.frontend "Создаёт новый заказ"
-            profiRu.frontend -> profiRu.api "POST /order"
+            profiRu.frontend -> profiRu.api "POST /orders"
             profiRu.api -> profiRu.orderService
             profiRu.orderService -> profiRu.orderDb
             profiRu.orderService -> user "Уведомление о создании нового заказа"
 
             user -> profiRu.frontend "Создание новой услуги в конкретном заказе"
-            profiRu.frontend -> profiRu.api "POST /order/{orderId}"
+            profiRu.frontend -> profiRu.api "POST /orders/{orderId}/tasks/"
             profiRu.api -> profiRu.taskService "POST /task"
             profiRu.taskService -> profiRu.orderDb
             profiRu.taskService -> user "Уведомление о создании новой услуги в заказе"
