@@ -38,14 +38,20 @@ workspace {
                 technology "T-API, MTS Pay"
             }
 
-            orderDb = container "Order/task database" {
-                description "Хранение данных о заказах (услугах)"
+            userDb = container "User database" {
+                description "Хранение данных о пользователях"
                 technology "PostgreSQL"
                 tags "Database"
             }
 
-            userDb = container "User database" {
-                description "Хранение данных о пользователях"
+            orderDb = container "Order database" {
+                description "Хранение данных о заказах"
+                technology "PostgreSQL"
+                tags "Database"
+            }
+
+            taskDb = container "Task database" {
+                description "Хранение данных о услугах"
                 technology "PostgreSQL"
                 tags "Database"
             }
@@ -69,8 +75,8 @@ workspace {
             user -> taskService "Управление услугами"
 
             userService -> userDb "Чтение/запись данных в базе пользователей"
-            orderService -> orderDb "Чтение/запись данных в базе заказов (услуг)"
-            taskService -> orderDb "Чтение/запись данных в базе заказов (услуг)"
+            orderService -> orderDb "Чтение/запись данных в базе заказов"
+            taskService -> taskDb "Чтение/запись данных в базе услуг"
 
             // межсервисное взаимодействие
             orderService -> userService "Получение данных о пользователе"
@@ -99,13 +105,13 @@ workspace {
             user -> frontend "Создание новой услуги"
             frontend -> api "POST /tasks"
             api -> taskService
-            taskService -> orderDb
+            taskService -> taskDb
             taskService -> user "Уведомление о создании услуги"
 
             user -> frontend "Получение списка услуг"
             frontend -> api "GET /tasks"
             api -> taskService
-            taskService -> orderDb
+            taskService -> taskDb
             taskService -> user
 
             user -> frontend "Добавление услуги в заказ"
@@ -150,7 +156,7 @@ workspace {
             user -> profiRu.frontend "Создание новой услуги в конкретном заказе"
             profiRu.frontend -> profiRu.api "POST /orders/{orderId}/tasks/"
             profiRu.api -> profiRu.taskService "POST /task"
-            profiRu.taskService -> profiRu.orderDb
+            profiRu.taskService -> profiRu.taskDb
             profiRu.taskService -> user "Уведомление о создании новой услуги в заказе"
             autolayout lr
         }
