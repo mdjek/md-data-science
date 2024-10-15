@@ -4,14 +4,22 @@ workspace {
     !docs documentation
 
     model {
+        # Участники
         user = person "User" {
-            description "Пользователь web-приложения"
+            description "Пользователь сайта"
         }
 
+        # Внешние системы
+        paymentSystem = softwareSystem "Payment system" {
+            description "Внешняя система для платежей"
+            tags "T-API, MTS Pay"
+        }
+
+        # Сайт ProfiRu
         profiRu = softwareSystem "Сайт profi.ru" {
             description "Сайт для поиска и заказа услуг"
 
-            frontend = container "Frontend" {
+            webApp = container "webApp" {
                 description "Web-приложение, позволяет пользоваться функционалом посредством браузера"
                 technology "HTML/CSS, React, JS"
             }
@@ -31,11 +39,6 @@ workspace {
 
             userService = container "User service" {
                 description "Сервис управления пользователями"
-            }
-
-            paymentService = container "Payment service" {
-                description "Cервис для интеграции систем платежей"
-                technology "T-API, MTS Pay"
             }
 
             userDb = container "User database" {
@@ -61,71 +64,44 @@ workspace {
                 technology "Nginx, Lua"
             }
 
-            //  Сценарии взаимодействия с системой
-            user -> frontend "Представление интерфейса для взаимодействия с системой"
-            frontend -> cdn "Запрос статичных файлов для графического отображения в интерфейсах (шрифты, svg, webp)"
-            frontend -> api "Отправление запросов к небходимым endpoint'ам"
+            # Сценарии взаимодействия межкду пользователем и системой
+            user -> webApp "Взаимодействие с системой посредством веб-приложения"
+            webApp -> api "Отправление запросов к небходимым endpoint'ам"
+
+            # Взаимодействие api с контенерами и внешними системами
             api -> userService "Запросы авторизации, CRUD пользователей"
             api -> orderService "Запросы CRUD заказов"
             api -> taskService "Запросы CRUD услуг"
-            api -> paymentService "Запросы на проведение платежей"
+            api -> paymentSystem "Проведение платежей"
+            api -> cdn "Запрос статичных файлов"
 
+            // # Управление данными
             user -> userService "Управление аккаунтом"
             user -> orderService "Управление заказами"
             user -> taskService "Управление услугами"
 
+            # Взаимодействие сервисов с базами
             userService -> userDb "Чтение/запись данных в базе пользователей"
             orderService -> orderDb "Чтение/запись данных в базе заказов"
             taskService -> taskDb "Чтение/запись данных в базе услуг"
 
-            // межсервисное взаимодействие
+            # Межсервисное взаимодействие
             orderService -> userService "Получение данных о пользователе"
             userService -> orderService "Получение данных о заказах"
             userService -> taskService "Получение данных об услугах"
+            orderService -> taskService "Получение данных об услугах в заказе"
 
-            // Сценарии
-            user -> frontend "Создание нового пользователя"
-            frontend -> api "POST /users"
-            api -> userService
-            userService -> userDb
-            userService -> user "Уведомление о создании пользователя"
 
-            user -> frontend "Поиск пользователя по логину"
-            frontend -> api "POST /search?login={str}"
-            api -> userService
-            userService -> userDb
-            userService -> user "Уведомление о результате поиска"
 
-            user -> frontend "Поиск пользователя по логину"
-            frontend -> api "POST /search?firstname={firstname}&lastname={lastname}"
-            api -> userService
-            userService -> userDb
-            userService -> user "Уведомление о результате поиска"
 
-            user -> frontend "Создание новой услуги"
-            frontend -> api "POST /tasks"
-            api -> taskService
-            taskService -> taskDb
-            taskService -> user "Уведомление о создании услуги"
 
-            user -> frontend "Получение списка услуг"
-            frontend -> api "GET /tasks"
-            api -> taskService
-            taskService -> taskDb
-            taskService -> user
 
-            user -> frontend "Добавление услуги в заказ"
-            frontend -> api "POST /orders/{orderId}/tasks/{taskId}"
-            api -> orderService
-            orderService -> orderDb
-            orderService -> user
 
-            user -> frontend "Получение заказа для пользователя"
-            frontend -> api "GET /users/{userId}/orders/{orderId}"
-            api -> userService
-            userService -> orderService
-            orderService -> orderDb
-            orderService -> user
+
+
+
+
+
         }
     }
 
@@ -140,24 +116,69 @@ workspace {
             autolayout lr
         }
 
-        dynamic profiRu "createOrderAndTask" "Создание нового заказа и услуги" {
-            user -> profiRu.frontend "Создаёт нового пользователя"
-            profiRu.frontend -> profiRu.api "POST /users"
+
+        dynamic profiRu "createUser" "Создание нового пользователя" {
+            user -> profiRu.webApp
+            profiRu.webApp -> profiRu.api "POST /users"
             profiRu.api -> profiRu.userService
             profiRu.userService -> profiRu.userDb
             profiRu.userService -> user "Уведомление о создании пользователя"
+            autolayout lr
+        }
 
-            user -> profiRu.frontend "Создаёт новый заказ"
-            profiRu.frontend -> profiRu.api "POST /orders"
-            profiRu.api -> profiRu.orderService
-            profiRu.orderService -> profiRu.orderDb
-            profiRu.orderService -> user "Уведомление о создании нового заказа"
+         dynamic profiRu "searchUser" "Поиск пользователя по логину" {
+            user -> profiRu.webApp
+            profiRu.webApp -> profiRu.api "POST /search?login={str}"
+            profiRu.api -> profiRu.userService
+            profiRu.userService -> profiRu.userDb
+            profiRu.userService -> user "Отображение результатов поиска"
+            autolayout lr
+        }
 
-            user -> profiRu.frontend "Создание новой услуги в конкретном заказе"
-            profiRu.frontend -> profiRu.api "POST /orders/{orderId}/tasks/"
-            profiRu.api -> profiRu.taskService "POST /task"
+        dynamic profiRu "searchUserByFirstnameOrLastname" "Поиск пользователя по имени/фамилии" {
+            user -> profiRu.webApp
+            profiRu.webApp -> profiRu.api "POST /search?firstname={firstname}&lastname={lastname}"
+            profiRu.api -> profiRu.userService
+            profiRu.userService -> profiRu.userDb
+            profiRu.userService -> user "Отображение результатов поиска"
+            autolayout lr
+        }
+
+        dynamic profiRu "createTask" "Создание услуги"{
+            user -> profiRu.webApp
+            profiRu.webApp -> profiRu.api "POST /tasks"
+            profiRu.api -> profiRu.taskService
             profiRu.taskService -> profiRu.taskDb
-            profiRu.taskService -> user "Уведомление о создании новой услуги в заказе"
+            profiRu.taskService -> user "Уведомление о создании услуги"
+            autolayout lr
+        }
+
+        dynamic profiRu "getTasks" "Получение списка услуг" {
+            user -> profiRu.webApp
+            profiRu.webApp -> profiRu.api "GET /tasks"
+            profiRu.api -> profiRu.taskService
+            profiRu.taskService -> profiRu.taskDb
+            profiRu.taskService -> user
+           autolayout lr
+        }
+
+        dynamic profiRu "addTaskInOrder" "Добавление услуг в заказ" {
+            user -> profiRu.webApp
+            profiRu.webApp -> profiRu.api "POST /orders/{orderId}/tasks/{taskId}"
+            profiRu.api -> profiRu.orderService
+            profiRu.taskService -> profiRu.orderService
+            profiRu.orderService -> profiRu.orderDb
+            profiRu.orderService -> user
+            autolayout lr
+        }
+
+        dynamic profiRu "getOrderToUser" "Получение заказа для пользователя" {
+            user -> profiRu.webApp
+            profiRu.webApp -> profiRu.api "GET /users/{userId}/orders/{orderId}"
+            profiRu.api -> profiRu.userService
+            profiRu.userService -> profiRu.orderService
+            profiRu.orderService -> profiRu.orderDb
+            profiRu.orderService -> user
             autolayout lr
         }
 
