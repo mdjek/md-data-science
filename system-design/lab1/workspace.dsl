@@ -2,6 +2,7 @@ workspace {
     name "Сайт заказа услуг"
     description "Представление архитектуры в нотации C4"
     !docs documentation
+    !identifiers hierarchical
 
     model {
         # Участники
