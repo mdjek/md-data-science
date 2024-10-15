@@ -90,18 +90,6 @@ workspace {
             userService -> orderService "Получение данных о заказах"
             userService -> taskService "Получение данных об услугах"
             orderService -> taskService "Получение данных об услугах в заказе"
-
-
-
-
-
-
-
-
-
-
-
-
         }
     }
 
