@@ -1,12 +1,12 @@
 from fastapi import FastAPI
-from routes import auth, user
+from routes import auth, users, orders, tasks
 
 app = FastAPI(title="App", description="API для управления заказами/услугами")
 
 app.include_router(auth.router)
-app.include_router(user.router)
-# app.include_router(order.router)
-# app.include_router(task.router)
+app.include_router(users.router)
+app.include_router(orders.router)
+app.include_router(tasks.router)
 
 if __name__ == "__main__":
     import uvicorn
