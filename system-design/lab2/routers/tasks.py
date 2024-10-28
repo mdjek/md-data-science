@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Form, HTTPException
 from typing import Dict, Optional, List
 
-from routes.auth import get_current_client
+from routers.auth import get_current_client
 from entities import TaskEntity
 
 router = APIRouter()

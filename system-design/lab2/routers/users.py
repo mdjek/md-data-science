@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException
 from datetime import timedelta, datetime
 from typing import Dict, Optional, List
 
-from routes.auth import get_current_client
+from routers.auth import get_current_client
 from entities import UserEntity
 
 

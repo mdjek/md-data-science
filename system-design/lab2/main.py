@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import auth, users, orders, tasks
+from routers import auth, users, orders, tasks
 
 app = FastAPI(title="App", description="API для управления заказами/услугами")
 
