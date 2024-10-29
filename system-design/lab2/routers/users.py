@@ -11,13 +11,13 @@ router = APIRouter()
 users_db = []
 
 # GET /users - Получить список пользователей (требует аутентификации)
-@router.get("/users", response_model=List[UserEntity])
-def get_users(current_user: str = Depends(get_current_client)):
+@router.get("/users", response_model=UserEntity, dependencies=[Depends(get_current_client)])
+def get_users():
     return users_db
 
 # POST /users - Создать нового пользователя (требует аутентификации)
-@router.post("/users", response_model=UserEntity)
-def create_user(newUser: UserEntity, current_user: str = Depends(get_current_client)):
+@router.post("/users", response_model=UserEntity, dependencies=[Depends(get_current_client)])
+def create_user(newUser: UserEntity):
     for user in users_db:
         if user.id == newUser.id:
             raise HTTPException(status_code=404, detail="User already exist")
@@ -27,8 +27,8 @@ def create_user(newUser: UserEntity, current_user: str = Depends(get_current_cli
     return newUser
 
 # GET /users/{username} - Поиск пользователя по username (требует аутентификации)
-@router.get("/users/{username}", response_model=UserEntity)
-def get_user(username: str, current_user: str = Depends(get_current_client)):
+@router.get("/users/{username}", response_model=UserEntity, dependencies=[Depends(get_current_client)])
+def get_user(username: str):
     for user in users_db:
         if user.username == username:
             return user
