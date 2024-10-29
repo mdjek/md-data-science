@@ -8,5 +8,4 @@
 
 ## Примечания
 
-Для тестирования нужно отправить POST запрос /token, получить JWT, срок действия в течении ACCESS_TOKEN_EXPIRE_MINUTES минут.
-Дальше можно тестировать, добавляя header Authorization Bearer с JWT.
+Для взаимодействия необходимо отправить POST запрос /token, время действия ACCESS_TOKEN_EXPIRE_MINUTES. Дальше можно тестировать, добавляя header Authorization Bearer с значением JWT.
