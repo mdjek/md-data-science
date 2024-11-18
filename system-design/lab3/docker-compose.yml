@@ -4,6 +4,7 @@ services:
   app:
     container_name: app
     build: .
+    restart: on-failure:10
     ports:
       - "8000:8000"
     depends_on:
