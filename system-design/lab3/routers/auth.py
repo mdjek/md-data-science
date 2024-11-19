@@ -19,11 +19,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # Настройка паролей
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Псевдобаза данных пользователей
-# client_db = {
-#     "admin": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"  # hashed "secret"
-# }
-
 # Зависимости для получения текущего пользователя
 async def get_current_client(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
@@ -62,11 +57,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
     if user and pwd_context.verify(form_data.password, user.password):
          password_check = True
-
-    # if form_data.username in client_db:
-    #     password = client_db[form_data.username]
-    #     if pwd_context.verify(form_data.password, password):
-    #         password_check = True
 
     if password_check:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
