@@ -1,62 +1,79 @@
 [
   {
+    "username": "admin",
+    "first_name": "Braden",
+    "last_name": "Siman",
+    "email": "admin@jigsy.com",
+    "password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
+  },
+  {
     "username": "bsiman0",
     "first_name": "Braden",
     "last_name": "Siman",
-    "email": "bsiman0@jigsy.com"
+    "email": "bsiman0@jigsy.com",
+    "password": ""
   },
   {
     "username": "dlambeth1",
     "first_name": "Dave",
     "last_name": "Lambeth",
-    "email": "dlambeth1@icq.com"
+    "email": "dlambeth1@icq.com",
+    "password": ""
   },
   {
     "username": "dmartinez2",
     "first_name": "Donna",
     "last_name": "Martinez",
-    "email": "dmartinez2@fc2.com"
+    "email": "dmartinez2@fc2.com",
+    "password": ""
   },
   {
     "username": "hpeirpoint3",
     "first_name": "Hartley",
     "last_name": "Peirpoint",
-    "email": "hpeirpoint3@illinois.edu"
+    "email": "hpeirpoint3@illinois.edu",
+    "password": ""
   },
   {
     "username": "loddie4",
     "first_name": "Lucius",
     "last_name": "Oddie",
-    "email": "loddie4@chronoengine.com"
+    "email": "loddie4@chronoengine.com",
+    "password": ""
   },
   {
     "username": "shammerman5",
     "first_name": "Slade",
     "last_name": "Hammerman",
-    "email": "shammerman5@gravatar.com"
+    "email": "shammerman5@gravatar.com",
+    "password": ""
   },
   {
     "username": "gcaruth6",
     "first_name": "Gwenni",
     "last_name": "Caruth",
-    "email": "gcaruth6@lulu.com"
+    "email": "gcaruth6@lulu.com",
+    "password": ""
   },
   {
     "username": "lgoldsby7",
     "first_name": "Leopold",
     "last_name": "Goldsby",
-    "email": "lgoldsby7@imdb.com"
+    "email": "lgoldsby7@imdb.com",
+    "password": ""
   },
   {
     "username": "igoundrill8",
     "first_name": "Itch",
     "last_name": "Goundrill",
-    "email": "igoundrill8@noaa.gov"
+    "email": "igoundrill8@noaa.gov",
+    "password": ""
   },
   {
     "username": "rwillishire9",
     "first_name": "Ruthe",
     "last_name": "Willishire",
-    "email": "rwillishire9@archive.org"
+    "email": "rwillishire9@archive.org",
+    "password": ""
   }
 ]

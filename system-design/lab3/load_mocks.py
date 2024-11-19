@@ -8,7 +8,8 @@ def load_user(entity):
         username=entity["username"],
         first_name=entity["first_name"],
         last_name=entity["last_name"],
-        email=entity["email"]
+        email=entity["email"],
+        password=entity["password"]
     )
 
 def load_order(entity):

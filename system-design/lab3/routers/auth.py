@@ -6,6 +6,9 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from passlib.context import CryptContext
 import jwt
 from jwt import PyJWTError
+from entities import User
+from init_db import get_db
+from sqlalchemy.orm import Session
 
 SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
@@ -54,8 +57,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 # Маршрут для получения токена
 @router.post("/token")
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     password_check = False
+    # user = db.query(User).filter(User.username == form_data.username).first()
+
+    # if user and pwd_context.verify(form_data.password, user.password):
+    #      password_check = True
+
     if form_data.username in client_db:
         password = client_db[form_data.username]
         if pwd_context.verify(form_data.password, password):
