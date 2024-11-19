@@ -1,8 +1,6 @@
 from fastapi import FastAPI
-# from routers import auth, users, orders, tasks
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, ARRAY, DateTime
-from sqlalchemy.orm import sessionmaker, Session
-from entities import Base
+from routers import auth, users, orders, tasks
+from load_mocks import load_json_mock
 
 # Настройка PostgreSQL
 # SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@db_profi/profi"
@@ -15,19 +13,25 @@ from entities import Base
 
 # DATABASE_URL = "postgresql://postgres:postgres@db_profi"
 # DATABASE_URL = "postgresql://postgres:pass@db_profi:5433/profi"
-DATABASE_URL = "postgresql://postgres:pass@db/profi_db"
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# # # Создание таблиц
-Base.metadata.create_all(bind=engine)
+# --------
+# DATABASE_URL = "postgresql://postgres:pass@db/profi_db"
+
+# engine = create_engine(DATABASE_URL)
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# # # # Создание таблиц
+# Base.metadata.create_all(bind=engine)
+# -----------
+
+load_json_mock()
 
 # Инициализация приложения
 app = FastAPI(title="App", description="API для управления заказами/услугами")
 
-# app.include_router(auth.router)
-# app.include_router(users.router)
+app.include_router(auth.router)
+app.include_router(users.router)
 # app.include_router(orders.router)
 # app.include_router(tasks.router)
 

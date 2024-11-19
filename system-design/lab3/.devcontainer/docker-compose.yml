@@ -6,7 +6,7 @@ services:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
-    restart: on-failure:10
+    restart: on-failure:5
     ports:
       - "8000:8000"
     depends_on:
