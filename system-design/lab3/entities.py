@@ -15,7 +15,7 @@ class ResponseUserEntity(CreateUserEntity):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Orders models
 class CreateOrderEntity(BaseModel):

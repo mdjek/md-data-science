@@ -25,13 +25,8 @@ def load_task(entity):
         order_id=entity["order_id"],
     )
 
-callbacks = {
-    "users": load_user,
-    "tasks": load_task,
-    "orders": load_order
-}
 
-def load_table_mocks(data: list, callback: Callable):
+def load_table_mock(data: list, callback: Callable):
     db = SessionLocal()
 
     for entity in data:
@@ -40,12 +35,18 @@ def load_table_mocks(data: list, callback: Callable):
         db.add(entityDB)
         db.commit()
 
-def load_json_mock():
-    json_list = ("users","tasks", "orders")
+    db.close()
 
-    for table_name in json_list:
+def load_mock_data():
+    tableToCallback = {
+        "users": load_user,
+        "tasks": load_task,
+        "orders": load_order
+    }
+
+    for table_name in tableToCallback.keys():
         f_opened = open(f"./mock-data/{table_name}.json")
         data = json.load(f_opened)
 
-        load_table_mocks(data, callbacks[table_name])
+        load_table_mock(data, tableToCallback[table_name])
         f_opened.close()

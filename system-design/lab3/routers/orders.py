@@ -1,42 +1,57 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
-
 from routers.auth import get_current_client
-from entities import ResponseOrderEntity
+from entities import ResponseOrderEntity, CreateOrderEntity, Order
+from init_db import get_db
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
-# Временное хранилище для заказов
-orders_db = []
-
 # GET /orders - Получить список заказов (требует аутентификации)
-@router.get("/orders", response_model=ResponseOrderEntity, dependencies=[Depends(get_current_client)])
-def get_users():
-    return orders_db
+# @router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
+@router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"])
+def get_orders(db: Session = Depends(get_db)):
+    orders = db.query(Order).all()
+    return orders
 
 # POST /orders - Создать заказ (требует аутентификации)
-@router.post("/orders", response_model=ResponseOrderEntity, dependencies=[Depends(get_current_client)])
-def create_order(newOrder: ResponseOrderEntity):
-    for order in orders_db:
-        if order.id == newOrder.id:
-            raise HTTPException(status_code=404, detail="Order already exist")
-    orders_db.append(newOrder)
-    return newOrder
+# @router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
+@router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"])
+def create_order(new_order: CreateOrderEntity, db: Session = Depends(get_db)):
+    if db.query(Order).filter(Order.name == new_order.name).first():
+        raise HTTPException(status_code=404, detail="Order with such name already exist")
+
+    db_order = Order(**new_order.dict())
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+    return db_order
 
 # PUT /orders/{order_id} - Редактировать существующий заказ (требует аутентификации)
-@router.put("/orders/{order_id}", response_model=ResponseOrderEntity, dependencies=[Depends(get_current_client)])
-def create_task(order_id: int, updated_order: ResponseOrderEntity):
-    for index, order in enumerate(orders_db):
-        if order.id == order_id:
-            orders_db[index] = updated_order
-            return updated_order
+# @router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
+@router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"])
+def edit_order(order_id: int, updated_order: CreateOrderEntity, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    
+    if order:
+        order.name = updated_order.name if isinstance(updated_order.name, str) else order.name
+        order.description = updated_order.description if isinstance(updated_order.description, str) else order.description
+        order.user_id = updated_order.user_id if isinstance(updated_order.user_id, int) else order.user_id
+        
+        db.commit()
+        db.refresh(order)
+        return order
+    
     raise HTTPException(status_code=404, detail="Order not found")
 
 # GET /orders/user/{user_id} - Получить всех заказы для пользователя (требует аутентификации)
-@router.get("/orders/user/{user_id}", response_model=ResponseOrderEntity, dependencies=[Depends(get_current_client)])
-def get_orders_for_user(user_id: int):
-    current_orders = []
-    for order in orders_db:
-        if order.user_id == user_id:
-            current_orders.append(order)
-    return current_orders
+# @router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
+@router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"])
+def get_orders_for_user(user_id: int, db: Session = Depends(get_db)):
+    orders = db.query(Order).filter(Order.user_id == user_id).all()
+
+    if orders:
+        return orders
+    
+    raise HTTPException(status_code=404, detail="Orders not found")
+    

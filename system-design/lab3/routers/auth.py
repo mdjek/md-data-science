@@ -22,10 +22,6 @@ client_db = {
     "admin": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"  # hashed "secret"
 }
 
-# Временное хранилище для заказов и услуг
-orders_db = []
-tasks_db = []
-
 # Зависимости для получения текущего пользователя
 async def get_current_client(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(

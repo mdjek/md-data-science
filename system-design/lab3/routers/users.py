@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 
 from routers.auth import get_current_client
-from entities import ResponseUserEntity, User, CreateUserEntity
+from entities import ResponseUserEntity, CreateUserEntity, User
 from init_db import get_db
 from sqlalchemy.orm import Session
 
@@ -10,7 +10,7 @@ router = APIRouter()
 
 # GET /users - Получить список пользователей (требует аутентификации)
 # @router.get("/users", response_model=ResponseUserEntity, dependencies=[Depends(get_current_client)])
-@router.get("/users", response_model=list[ResponseUserEntity], tags=["Users"])
+@router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"])
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
     return users
@@ -35,6 +35,6 @@ def get_user(username: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == username).first()
     
     if user.id:
-        raise HTTPException(status_code=404, detail="User with such username does not exist") 
-    return user
+        return user
+    raise HTTPException(status_code=404, detail="User with such username does not exist") 
     
