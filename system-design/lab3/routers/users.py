@@ -21,6 +21,9 @@ def get_users(db: Session = Depends(get_db)):
 def create_user(new_user: CreateUserEntity, db: Session = Depends(get_db)):
     if db.query(User).filter(User.username == new_user.username).first():
         raise HTTPException(status_code=404, detail="User with such username already exist")
+    
+    if db.query(User).filter(User.email == new_user.email).first():
+        raise HTTPException(status_code=404, detail="User with such email already exist")
 
     db_user = User(**new_user.dict())
     db.add(db_user)
