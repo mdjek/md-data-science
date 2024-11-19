@@ -39,15 +39,15 @@ def load_table_mock(data: list, callback: Callable):
     db.close()
 
 def load_mock_data():
-    tableToCallback = {
+    mock_map = {
         "users": load_user,
         "tasks": load_task,
         "orders": load_order
     }
 
-    for table_name in tableToCallback.keys():
-        f_opened = open(f"./mocks/{table_name}.json")
+    for key in mock_map.keys():
+        f_opened = open(f"./mocks/{key}.json")
         data = json.load(f_opened)
 
-        load_table_mock(data, tableToCallback[table_name])
+        load_table_mock(data, mock_map[key])
         f_opened.close()
