@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 # GET /users - Получить список пользователей (требует аутентификации)
-@router.get("/users", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
+@router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"], dependencies=[Depends(get_current_client)])
 # @router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"])
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()

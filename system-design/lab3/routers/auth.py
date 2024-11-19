@@ -4,8 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from passlib.context import CryptContext
-import jwt
-from jwt import PyJWTError
+from jose import JWTError, jwt
 from entities import User
 from init_db import get_db
 from sqlalchemy.orm import Session
@@ -21,9 +20,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Псевдобаза данных пользователей
-client_db = {
-    "admin": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"  # hashed "secret"
-}
+# client_db = {
+#     "admin": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"  # hashed "secret"
+# }
 
 # Зависимости для получения текущего пользователя
 async def get_current_client(token: str = Depends(oauth2_scheme)):
@@ -39,7 +38,7 @@ async def get_current_client(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
         else:
             return username
-    except PyJWTError:
+    except JWTError:
         raise credentials_exception
 
 
@@ -59,15 +58,15 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 @router.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     password_check = False
-    # user = db.query(User).filter(User.username == form_data.username).first()
+    user = db.query(User).filter(User.username == form_data.username).first()
 
-    # if user and pwd_context.verify(form_data.password, user.password):
-    #      password_check = True
+    if user and pwd_context.verify(form_data.password, user.password):
+         password_check = True
 
-    if form_data.username in client_db:
-        password = client_db[form_data.username]
-        if pwd_context.verify(form_data.password, password):
-            password_check = True
+    # if form_data.username in client_db:
+    #     password = client_db[form_data.username]
+    #     if pwd_context.verify(form_data.password, password):
+    #         password_check = True
 
     if password_check:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
