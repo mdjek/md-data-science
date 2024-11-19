@@ -46,7 +46,7 @@ def load_mock_data():
     }
 
     for table_name in tableToCallback.keys():
-        f_opened = open(f"./mock-data/{table_name}.json")
+        f_opened = open(f"./mocks/{table_name}.json")
         data = json.load(f_opened)
 
         load_table_mock(data, tableToCallback[table_name])
