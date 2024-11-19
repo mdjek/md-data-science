@@ -1,0 +1,47 @@
+version: "3.3"
+
+services:
+  app:
+    container_name: app
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    restart: on-failure:5
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: >
+      sh -c "python init_db.py && uvicorn main:app --host 0.0.0.0 --port 8000"
+    volumes:
+      - ..:/workspace
+
+  db:
+    container_name: db
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: profi_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb
+    restart: on-failure
+    environment:
+      MONGO_USER: root
+      MONGO_PASSWORD: pass
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+
+volumes:
+  postgres_data:
+  mongodb_data:
