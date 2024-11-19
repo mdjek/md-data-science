@@ -27,11 +27,11 @@ def load_task(entity):
     )
 
 
-def load_table_mock(data: list, callback: Callable):
+def load_table_mock(data: list, loader: Callable):
     db = SessionLocal()
 
     for entity in data:
-        entityDB = callback(entity)
+        entityDB = loader(entity)
 
         db.add(entityDB)
         db.commit()
