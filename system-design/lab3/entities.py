@@ -14,6 +14,9 @@ class CreateUserEntity(BaseModel):
 class ResponseUserEntity(CreateUserEntity):
     id: int
 
+    class Config:
+        from_attributes = True
+
 # Orders models
 class CreateOrderEntity(BaseModel):
     name: str
