@@ -1,5 +1,5 @@
 {
-  "name": "System Design Lab 3",
+  "name": "System Design Lab 4",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspace",

@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from entities import User
-from init_db import get_db
+from init_pg_db import get_db
 from sqlalchemy.orm import Session
 
 SECRET_KEY = "your-secret-key"

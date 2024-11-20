@@ -1,9 +1,9 @@
 import json
-from init_db import SessionLocal
+from init_pg_db import SessionLocal
 from entities import User, Order, Task
 from typing import Callable
 
-def load_user(entity):
+def load_pg_user(entity):
     return User(
         username=entity["username"],
         first_name=entity["first_name"],
@@ -12,14 +12,14 @@ def load_user(entity):
         password=entity["password"]
     )
 
-def load_order(entity):
+def load_pg_order(entity):
     return Order(
         name=entity["name"],
         description=entity["description"],
         user_id=entity["user_id"],
     )
 
-def load_task(entity):
+def load_pg_task(entity):
     return Task(
         name=entity["name"],
         description=entity["description"],
@@ -27,7 +27,7 @@ def load_task(entity):
     )
 
 
-def load_table_mock(data: list, loader: Callable):
+def load_pg_table_mock(data: list, loader: Callable):
     db = SessionLocal()
 
     for entity in data:
@@ -38,16 +38,16 @@ def load_table_mock(data: list, loader: Callable):
 
     db.close()
 
-def load_mock_data():
+def load_mock_pg_data():
     mock_map = {
-        "users": load_user,
-        "tasks": load_task,
-        "orders": load_order
+        "users": load_pg_user,
+        "tasks": load_pg_task,
+        "orders": load_pg_order
     }
 
     for key in mock_map.keys():
         f_opened = open(f"./mocks/{key}.json")
         data = json.load(f_opened)
 
-        load_table_mock(data, mock_map[key])
+        load_pg_table_mock(data, mock_map[key])
         f_opened.close()

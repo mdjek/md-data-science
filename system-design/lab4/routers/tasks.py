@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from routers.auth import get_current_client
 from entities import ResponseTaskEntity, CreateTaskEntity, Task
-from init_db import get_db
+from init_pg_db import get_db
 from sqlalchemy.orm import Session
 
 router = APIRouter()
