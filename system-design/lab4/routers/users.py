@@ -16,8 +16,8 @@ collection = db['users']
 router = APIRouter()
 
 # GET /users - Получить список пользователей (требует аутентификации)
-# @router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"], dependencies=[Depends(get_current_client)])
-@router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"])
+@router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"], dependencies=[Depends(get_current_client)])
+# @router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"])
 def get_users():
     result = list(collection.find())
 
@@ -27,8 +27,8 @@ def get_users():
     return result
 
 # POST /users - Создать нового пользователя (требует аутентификации)
-# @router.post("/users", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
-@router.post("/users", response_model=ResponseUserEntity, tags=["Users"])
+@router.post("/users", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
+# @router.post("/users", response_model=ResponseUserEntity, tags=["Users"])
 def create_user(new_user: CreateUserEntity, db: Session = Depends(get_db)):
     query_by_user_name = { "username": new_user.username }
     query_by_email = { "email": new_user.email }
@@ -50,8 +50,8 @@ def create_user(new_user: CreateUserEntity, db: Session = Depends(get_db)):
     return insert_user
 
 # GET /users/{username} - Поиск пользователя по username (требует аутентификации)
-# @router.get("/users/{username}", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
-@router.get("/users/{username}", response_model=ResponseUserEntity, tags=["Users"])
+@router.get("/users/{username}", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
+# @router.get("/users/{username}", response_model=ResponseUserEntity, tags=["Users"])
 def get_user(username: str, db: Session = Depends(get_db)):
     query = { "username": username }
     user = collection.find_one(query)

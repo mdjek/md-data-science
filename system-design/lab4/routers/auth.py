@@ -61,10 +61,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 @router.post("/token", tags=["Auth"])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     password_check = False
-    user = db.query(User).filter(User.username == form_data.username).first()
+    user = collection.find_one({"username": form_data.username})
 
     if user and pwd_context.verify(form_data.password, user.password):
-         password_check = True
+        password_check = True
 
     if password_check:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
