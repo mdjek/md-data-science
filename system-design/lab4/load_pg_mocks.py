@@ -31,6 +31,7 @@ def load_pg_table_mock(data: list, loader: Callable):
     db = SessionLocal()
 
     for entity in data:
+        # user = db.query(User).filter(User.username == username).first()n
         entityDB = loader(entity)
 
         db.add(entityDB)

@@ -16,7 +16,6 @@ def load_mongo_collection_mock(data: list):
         else:
             print('Failed to insert document.')
 
-
 def load_mongo_mock_data():
     mock_map = ("users",)
 

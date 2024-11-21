@@ -4,7 +4,9 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-# Users models (mongo db) 
+# --- MongoDB models
+
+## Users models
 class CreateUserEntity(BaseModel):
     username: str
     first_name: str
@@ -14,25 +16,28 @@ class CreateUserEntity(BaseModel):
 class ResponseUserEntity(CreateUserEntity):
     id: str 
 
-# Orders models (pg db)
+
+# --- Postgresql models
+
+## Orders models
 class CreateOrderEntity(BaseModel):
     name: str
     description: str
     user_id: int
 
 class ResponseOrderEntity(CreateOrderEntity):
-    id: int | str
+    id: int
 
-# Task models (pg db)
+## Task models
 class CreateTaskEntity(BaseModel):    
     name: str
     description: str
     order_id: int
 
 class ResponseTaskEntity(CreateTaskEntity):
-    id: int | str
+    id: int
 
-# Pg models
+## Postgresql db models
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True, nullable=False)

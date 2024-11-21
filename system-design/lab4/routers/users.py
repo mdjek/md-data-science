@@ -27,28 +27,39 @@ def get_users():
     return result
 
 # POST /users - Создать нового пользователя (требует аутентификации)
-@router.post("/users", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
-# @router.post("/users", response_model=ResponseUserEntity, tags=["Users"])
+# @router.post("/users", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
+@router.post("/users", response_model=ResponseUserEntity, tags=["Users"])
 def create_user(new_user: CreateUserEntity, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.username == new_user.username).first():
+    query_by_user_name = { "username": new_user.username }
+    query_by_email = { "email": new_user.email }
+    
+    user_with_username = collection.find_one(query_by_user_name)
+    user_with_email = collection.find_one(query_by_email)
+
+    if user_with_username:
         raise HTTPException(status_code=404, detail="User with such username already exist")
     
-    if db.query(User).filter(User.email == new_user.email).first():
+    if user_with_email:
         raise HTTPException(status_code=404, detail="User with such email already exist")
 
-    db_user = User(**new_user.dict())
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    insert_user = new_user.dict()
+    # insert_user["password"] = pwd_context.hash(insert_user["password"])
+    user_id = collection.insert_one(insert_user).inserted_id    
+    insert_user["id"] = str(user_id)
+
+    return insert_user
 
 # GET /users/{username} - Поиск пользователя по username (требует аутентификации)
-@router.get("/users/{username}", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
-# @router.get("/users/{username}", response_model=ResponseUserEntity, tags=["Users"])
+# @router.get("/users/{username}", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
+@router.get("/users/{username}", response_model=ResponseUserEntity, tags=["Users"])
 def get_user(username: str, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.username == username).first()
-    
-    if user.id:
+    query = { "username": username }
+    user = collection.find_one(query)
+
+    if user:
+        user["id"] = str(user["_id"])
         return user
-    raise HTTPException(status_code=404, detail="User with such username does not exist") 
+    else:
+        raise HTTPException(status_code=404, detail="User with such username does not exist")
+
     

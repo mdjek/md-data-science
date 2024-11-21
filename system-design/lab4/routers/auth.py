@@ -17,7 +17,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Настройка Mongo
 MONGODB_URI = "mongodb://root:rootpasswd@mongo:27017/"   
-client = MongoClient(MONGODB_URI)
+client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=1000)
 db = client['mongo_profi_db']
 collection = db['users']
 
@@ -58,7 +58,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 # Маршрут для получения токена
-@router.post("/token")
+@router.post("/token", tags=["Auth"])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     password_check = False
     user = db.query(User).filter(User.username == form_data.username).first()
