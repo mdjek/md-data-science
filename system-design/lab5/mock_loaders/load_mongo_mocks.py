@@ -1,6 +1,8 @@
 import json
 from pymongo import ASCENDING, MongoClient
 
+MOCK_LIST = ("users",)
+
 # Настройка Mongo
 MONGODB_URI = "mongodb://root:rootpasswd@mongo:27017/"   
 client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=1000)
@@ -25,9 +27,7 @@ def load_mongo_collection_mock(data: list):
             print('Failed to insert document (MongoDB).')
 
 def load_mongo_mock_data():
-    mock_map = ("users",)
-
-    for key in mock_map:
+    for key in MOCK_LIST:
         f_opened = open(f"./mocks/{key}.json")
         data = json.load(f_opened)
 

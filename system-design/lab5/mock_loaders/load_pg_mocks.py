@@ -4,6 +4,12 @@ from entities import User, Order, Task
 
 MODEL = User | Order | Task
 
+MOCK_MAP = {
+    # "users": User,
+    "tasks": Task,
+    "orders": Order
+}
+
 def loader(entity, modelEntity: MODEL):
     return modelEntity(**entity)
 
@@ -11,10 +17,11 @@ def loader(entity, modelEntity: MODEL):
 def load_pg_table_mock(data: list, modelEntity: MODEL):
     db = SessionLocal()
 
-    collection = db.query(Order).all()
+    collection = db.query(modelEntity).all()
 
     # если есть записи – не добавляем
     if len(collection):
+        db.close()
         return
 
     for entity in data:
@@ -28,15 +35,9 @@ def load_pg_table_mock(data: list, modelEntity: MODEL):
 
 
 def load_pg_mock_data():
-    mock_map = {
-        # "users": User,
-        "tasks": Task,
-        "orders": Order
-    }
-
-    for key in mock_map.keys():
+    for key in MOCK_MAP.keys():
         f_opened = open(f"./mocks/{key}.json")
         data = json.load(f_opened)
 
-        load_pg_table_mock(data, mock_map[key])
+        load_pg_table_mock(data, MOCK_MAP[key])
         f_opened.close()
