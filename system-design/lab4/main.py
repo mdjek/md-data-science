@@ -1,9 +1,13 @@
 from fastapi import FastAPI
 from routers import auth, users, orders, tasks
-from load_mocks import load_mock_pg_data
+from load_pg_mocks import load_pg_mock_data
+from load_mongo_mocks import load_mongo_mock_data
+
+# Наполняем mongo базу моками
+load_mongo_mock_data()
 
 # Наполняем pg базу моками
-# load_mock_pg_data()
+# load_pg_mock_data()
 
 # Инициализация приложения
 app = FastAPI(title="App", description="API для управления заказами/услугами")

@@ -12,7 +12,7 @@ class CreateUserEntity(BaseModel):
     email: str
 
 class ResponseUserEntity(CreateUserEntity):
-    id: int
+    id: str 
 
 # Orders models (pg db)
 class CreateOrderEntity(BaseModel):
@@ -21,7 +21,7 @@ class CreateOrderEntity(BaseModel):
     user_id: int
 
 class ResponseOrderEntity(CreateOrderEntity):
-    id: int
+    id: int | str
 
 # Task models (pg db)
 class CreateTaskEntity(BaseModel):    
@@ -30,7 +30,7 @@ class CreateTaskEntity(BaseModel):
     order_id: int
 
 class ResponseTaskEntity(CreateTaskEntity):
-    id: int
+    id: int | str
 
 # Pg models
 class User(Base):
@@ -55,5 +55,3 @@ class Task(Base):
     name = Column(String)
     description = Column(String)
     order_id = Column(Integer, index=True)
-
-# Mongo models

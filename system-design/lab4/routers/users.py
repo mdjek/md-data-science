@@ -5,15 +5,26 @@ from routers.auth import get_current_client
 from entities import ResponseUserEntity, CreateUserEntity, User
 from init_pg_db import get_db
 from sqlalchemy.orm import Session
+from pymongo import MongoClient
+
+# Настройка Mongo
+MONGODB_URI = "mongodb://root:rootpasswd@mongo:27017/"   
+client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=1000)
+db = client['mongo_profi_db']
+collection = db['users']
 
 router = APIRouter()
 
 # GET /users - Получить список пользователей (требует аутентификации)
-@router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"], dependencies=[Depends(get_current_client)])
-# @router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"])
-def get_users(db: Session = Depends(get_db)):
-    users = db.query(User).all()
-    return users
+# @router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"], dependencies=[Depends(get_current_client)])
+@router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"])
+def get_users():
+    result = list(collection.find())
+
+    for user in result:
+        user["id"] = str(user["_id"])
+
+    return result
 
 # POST /users - Создать нового пользователя (требует аутентификации)
 @router.post("/users", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])

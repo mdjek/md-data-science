@@ -38,9 +38,9 @@ def load_pg_table_mock(data: list, loader: Callable):
 
     db.close()
 
-def load_mock_pg_data():
+def load_pg_mock_data():
     mock_map = {
-        "users": load_pg_user,
+        # "users": load_pg_user,
         "tasks": load_pg_task,
         "orders": load_pg_order
     }

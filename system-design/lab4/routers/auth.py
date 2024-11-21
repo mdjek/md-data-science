@@ -8,10 +8,18 @@ from jose import JWTError, jwt
 from entities import User
 from init_pg_db import get_db
 from sqlalchemy.orm import Session
+from pymongo import MongoClient
 
 SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+# Настройка Mongo
+MONGODB_URI = "mongodb://root:rootpasswd@mongo:27017/"   
+client = MongoClient(MONGODB_URI)
+db = client['mongo_profi_db']
+collection = db['users']
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
