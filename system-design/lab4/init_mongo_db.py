@@ -7,7 +7,7 @@ MONGODB_URI = "mongodb://root:rootpasswd@mongo:27017/"
 client = MongoClient(MONGODB_URI)
 
 # Выбор базы данных
-db = client['mongoprofidb']
+db = client['mongo_profi_db']
 
 # Выбор коллекции
 collection = db['users']

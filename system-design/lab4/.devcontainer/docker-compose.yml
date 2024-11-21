@@ -36,18 +36,12 @@ services:
     image: mongo:6-jammy
     restart: on-failure:3
     env_file: [.env-mongo, .env]
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: root
-    #   MONGO_INITDB_ROOT_PASSWORD: pass
-    #   MONGO_INITDB_DATABASE: mongo_profi_db
     volumes:
       - mongo_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-      # - ./mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+      # - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
     ports:
       - "27017:27017"
-    # healthcheck:
-    #   test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
 
 volumes:
   postgres_data:
