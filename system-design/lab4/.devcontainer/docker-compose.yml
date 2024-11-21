@@ -14,7 +14,7 @@ services:
       - db
       - mongo
     command: >
-      sh -c "python init_pg_db.py && uvicorn main:app --host 0.0.0.0 --port 8000"
+      sh -c "python init_pg_db.py && python load_mock uvicorn main:app --host 0.0.0.0 --port 8000"
     volumes:
       - ..:/workspace
       # sh -c "python init_pg_db.py && python init_mongo_db.py && uvicorn main:app --host 0.0.0.0 --port 8000"

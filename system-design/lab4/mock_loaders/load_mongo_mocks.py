@@ -12,9 +12,9 @@ def load_mongo_collection_mock(data: list):
         result = collection.insert_one(entity)
 
         if result.acknowledged:
-            print('Document inserted successfully.')    
+            print('Document inserted successfully (MongoDB).')    
         else:
-            print('Failed to insert document.')
+            print('Failed to insert document (MongoDB).')
 
 def load_mongo_mock_data():
     mock_map = ("users",)
