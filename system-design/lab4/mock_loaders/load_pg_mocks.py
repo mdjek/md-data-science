@@ -26,13 +26,16 @@ def load_pg_task(entity):
         order_id=entity["order_id"],
     )
 
+def loader(entity, modelEntity: User | Order | Task):
+    return modelEntity(**entity)
 
-def load_pg_table_mock(data: list, loader: Callable):
+
+def load_pg_table_mock(data: list, modelEntity: User | Order | Task):
     db = SessionLocal()
 
     for entity in data:
         # user = db.query(User).filter(User.username == username).first()n
-        entityDB = loader(entity)
+        entityDB = loader(entity, modelEntity)
 
         db.add(entityDB)
         db.commit()
@@ -41,9 +44,9 @@ def load_pg_table_mock(data: list, loader: Callable):
 
 def load_pg_mock_data():
     mock_map = {
-        # "users": load_pg_user,
-        "tasks": load_pg_task,
-        "orders": load_pg_order
+        # "users": User,
+        "tasks": Task,
+        "orders": Order
     }
 
     for key in mock_map.keys():

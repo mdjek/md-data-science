@@ -7,7 +7,7 @@ client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=1000)
 db = client['mongo_profi_db']
 collection = db['users']
 # Создание индекса на поле username
-collection.create_index([("username", ASCENDING)], unique=True)
+# collection.create_index([("username", ASCENDING)], unique=True)
 
 def load_mongo_collection_mock(data: list):
     for entity in data:
