@@ -12,10 +12,10 @@ collection = db['users']
 # collection.create_index([("username", ASCENDING)], unique=True)
 
 def load_mongo_collection_mock(data: list):
-    collection = list(collection.find())
+    existCollection = list(collection.find())
     
     # если есть записи – не добавляем
-    if len(collection):
+    if len(existCollection):
         return
 
     for entity in data:
