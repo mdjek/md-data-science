@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from bson import ObjectId
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -14,7 +15,7 @@ class CreateUserEntity(BaseModel):
     email: str
 
 class ResponseUserEntity(CreateUserEntity):
-    id: str 
+    id: str
 
 
 # --- Postgresql models
