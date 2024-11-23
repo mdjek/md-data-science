@@ -1,10 +1,10 @@
 import json
-from pymongo import ASCENDING, MongoClient
+from pymongo import MongoClient
+from constants import MONGODB_URI
 
 MOCK_TABLE_LIST = ("users",)
 
-# Настройка Mongo
-MONGODB_URI = "mongodb://root:rootpasswd@mongo:27017/"   
+# Настройка Mongo 
 client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=1000)
 db = client['mongo_profi_db']
 collection = db['users']

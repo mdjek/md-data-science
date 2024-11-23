@@ -1,10 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from entities import Base, Task, Order, ResponseUserEntity, ResponseOrderEntity
+from constants import POSTGRESQL_DATABASE_URL
 
-DATABASE_URL = "postgresql://postgres:pass@db/profi_db"
-engine = create_engine(DATABASE_URL, echo = True)
-
+engine = create_engine(POSTGRESQL_DATABASE_URL, echo = True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Создание таблиц

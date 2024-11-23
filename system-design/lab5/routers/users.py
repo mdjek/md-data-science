@@ -6,9 +6,9 @@ from entities import ResponseUserEntity, CreateUserEntity, User
 from init_pg_db import get_db
 from sqlalchemy.orm import Session
 from pymongo import MongoClient
+from constants import MONGODB_URI
 
-# Настройка Mongo
-MONGODB_URI = "mongodb://root:rootpasswd@mongo:27017/"   
+# Настройка Mongo  
 client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=1000)
 db = client['mongo_profi_db']
 collection = db['users']
