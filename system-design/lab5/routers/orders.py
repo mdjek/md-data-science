@@ -4,6 +4,7 @@ from routers.auth import get_current_client
 from entities import ResponseOrderEntity, CreateOrderEntity, Order
 from init_pg_db import get_db
 from sqlalchemy.orm import Session
+from init_cache import redis_client
 
 router = APIRouter()
 
