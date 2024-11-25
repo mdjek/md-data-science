@@ -2,6 +2,15 @@ import redis
 import json
 from constants import REDIS_URL
 
+def get_keys_to_str(item, keys) -> str:
+    result_str = ""
+
+    for index in range(len(keys)):
+        result_str += f"{item.__dict__[keys[index]]}{'' if (len(keys) - 1) == index else ':'}"
+
+    return result_str
+
+
 def connect_redis():
     try:        
         redis_client = redis.from_url(REDIS_URL, decode_responses=True)
@@ -18,9 +27,11 @@ def set_item_redis(redis_client, item, key_prefix, keys):
     for k in item.__dict__:
         if k != '_sa_instance_state':
             item_json[k] = item.__dict__[k]
+            
+    keys_str = get_keys_to_str(item, keys)
 
     if item:
-        redis_key = f"{key_prefix}:{item.__dict__[keys[0]]}:{item.__dict__[keys[1]]}"
+        redis_key = f"{key_prefix}:{keys_str}"
 
         # redis_client.hset(redis_key, mapping=json.dumps(item_json))
 
