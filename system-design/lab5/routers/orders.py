@@ -60,6 +60,7 @@ def edit_order(order_id: int, updated_order: CreateOrderEntity, db: Session = De
 
         if data:
             insert_data_into_redis(data, "orders", ["id", "user_id"])
+
         return order
     
     raise HTTPException(status_code=404, detail="Order not found")
