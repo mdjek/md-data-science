@@ -9,12 +9,7 @@ from entities import User
 from init_pg_db import get_db
 from sqlalchemy.orm import Session
 from pymongo import MongoClient
-from constants import MONGODB_URI
-
-SECRET_KEY = "your-secret-key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
+from constants import MONGODB_URI, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 # Настройка Mongo   
 client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=1000)
