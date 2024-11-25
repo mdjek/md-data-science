@@ -1,6 +1,6 @@
 import redis
 import json
-from constants import REDIS_URL    
+from constants import REDIS_URL
 
 def connect_redis():
     try:        
