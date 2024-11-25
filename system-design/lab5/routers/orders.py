@@ -21,11 +21,10 @@ def get_orders(db: Session = Depends(get_db)):
 
         if data:
             insert_data_into_redis(data, "orders", ["id", "user_id"])
-            pass
-        else:
-            raise HTTPException(status_code=404, detail="Orders not found")
-        return data
-
+            return data
+        
+        raise HTTPException(status_code=404, detail="Orders not found")
+        
 # POST /orders - Создать заказ (требует аутентификации)
 @router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
 # @router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"])
@@ -80,5 +79,5 @@ def get_orders_for_user(user_id: int, db: Session = Depends(get_db)):
             insert_data_into_redis(data, "orders", ["id", "user_id"])
             return data
         
-    raise HTTPException(status_code=404, detail="Orders not found")
+        raise HTTPException(status_code=404, detail="Orders not found")
         
