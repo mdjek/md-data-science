@@ -4,20 +4,43 @@ from routers.auth import get_current_client
 from entities import ResponseOrderEntity, CreateOrderEntity, Order
 from init_pg_db import get_db
 from sqlalchemy.orm import Session
-from init_cache import redis_client
+from utils import insert_data_into_redis, get_data_from_redis
 
 router = APIRouter()
 
 # GET /orders - Получить список заказов (требует аутентификации)
-@router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
-# @router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"])
+# @router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
+@router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"])
 def get_orders(db: Session = Depends(get_db)):
-    orders = db.query(Order).all()
-    return orders
+    cached_data = get_data_from_redis("orders:1")
+    print("cached_data", cached_data)
+
+    if cached_data:
+        print("~~~~cached_data")
+        return cached_data
+    else:
+        print("~~~~db.query")
+        data = db.query(Order).all()
+
+        if data:
+            insert_data_into_redis(data, "orders", "id")
+            pass
+        else:
+            raise HTTPException(status_code=404, detail="Orders not found")
+        return data
+
+    # orders = db.query(Order).all()
+
+    # if orders:
+    #     insert_data_into_redis(orders, "orders", "id")
+    #     pass
+    # else:
+    #     raise HTTPException(status_code=404, detail="Orders not found")
+    # return orders
 
 # POST /orders - Создать заказ (требует аутентификации)
-@router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
-# @router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"])
+# @router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
+@router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"])
 def create_order(new_order: CreateOrderEntity, db: Session = Depends(get_db)):
     db_order = Order(**new_order.dict())
     db.add(db_order)
@@ -26,8 +49,8 @@ def create_order(new_order: CreateOrderEntity, db: Session = Depends(get_db)):
     return db_order
 
 # PUT /orders/{order_id} - Редактировать существующий заказ (требует аутентификации)
-@router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
-# @router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"])
+# @router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
+@router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"])
 def edit_order(order_id: int, updated_order: CreateOrderEntity, db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == order_id).first()
     
@@ -43,9 +66,25 @@ def edit_order(order_id: int, updated_order: CreateOrderEntity, db: Session = De
     raise HTTPException(status_code=404, detail="Order not found")
 
 # GET /orders/user/{user_id} - Получить всех заказы для пользователя (требует аутентификации)
-@router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
-# @router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"])
+# @router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
+@router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"])
 def get_orders_for_user(user_id: int, db: Session = Depends(get_db)):
+    cached_data = get_data_from_redis("orders", user_id)
+
+    if cached_data:
+        return cached_data
+    else:
+        data = db.query(Order).filter(Order.user_id == user_id).all()
+
+        if data:
+            insert_data_into_redis(data, "orders", "id")
+            pass
+        else:
+            raise HTTPException(status_code=404, detail="Orders not found")
+        return data
+
+
+
     orders = db.query(Order).filter(Order.user_id == user_id).all()
 
     if orders:
