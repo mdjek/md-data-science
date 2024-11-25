@@ -12,7 +12,7 @@ def connect_redis():
         return None
     
     
-def set_redis_item(redis_client, item, key_prefix, keys):
+def set_item_redis(redis_client, item, key_prefix, keys):
     item_json = dict()
 
     for k in item.__dict__:
@@ -37,9 +37,9 @@ def insert_data_into_redis(data, key_prefix, keys: list):
     try: 
         if (isinstance(data, list)):
             for item in data:
-                set_redis_item(redis_client, item, key_prefix, keys)
+                set_item_redis(redis_client, item, key_prefix, keys)
         else:
-                set_redis_item(redis_client, data, key_prefix, keys)
+                set_item_redis(redis_client, data, key_prefix, keys)
 
     except Exception as e:
         print(f"Error inserting data into Redis: {e}")
