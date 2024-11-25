@@ -9,8 +9,8 @@ from utils import insert_data_into_redis, get_data_from_redis
 router = APIRouter()
 
 # GET /orders - Получить список заказов (требует аутентификации)
-# @router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
-@router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"])
+@router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
+# @router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"])
 def get_orders(db: Session = Depends(get_db)):
     cached_data = get_data_from_redis("orders:*")
 
@@ -27,18 +27,24 @@ def get_orders(db: Session = Depends(get_db)):
         return data
 
 # POST /orders - Создать заказ (требует аутентификации)
-# @router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
-@router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"])
+@router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
+# @router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"])
 def create_order(new_order: CreateOrderEntity, db: Session = Depends(get_db)):
     db_order = Order(**new_order.dict())
     db.add(db_order)
     db.commit()
     db.refresh(db_order)
+
+    data = db.query(Order).all()
+
+    if data:
+        insert_data_into_redis(data, "orders", ["id", "user_id"])
+    
     return db_order
 
 # PUT /orders/{order_id} - Редактировать существующий заказ (требует аутентификации)
-# @router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
-@router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"])
+@router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
+# @router.put("/orders/{order_id}", response_model=ResponseOrderEntity, tags=["Orders"])
 def edit_order(order_id: int, updated_order: CreateOrderEntity, db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == order_id).first()
     
@@ -49,13 +55,18 @@ def edit_order(order_id: int, updated_order: CreateOrderEntity, db: Session = De
         
         db.commit()
         db.refresh(order)
+
+        data = db.query(Order).all()
+
+        if data:
+            insert_data_into_redis(data, "orders", ["id", "user_id"])
         return order
     
     raise HTTPException(status_code=404, detail="Order not found")
 
 # GET /orders/user/{user_id} - Получить всех заказы для пользователя (требует аутентификации)
-# @router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
-@router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"])
+@router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)])
+# @router.get("/orders/user/{user_id}", response_model=List[ResponseOrderEntity], tags=["Orders"])
 def get_orders_for_user(user_id: int, db: Session = Depends(get_db)):
     cached_data = get_data_from_redis(f"orders:*:{user_id}")    
 
