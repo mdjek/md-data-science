@@ -78,7 +78,7 @@ def get_orders_for_user(user_id: int, db: Session = Depends(get_db)):
 
         if data:
             insert_data_into_redis(data, "orders", ["id", "user_id"])
-            pass
-        else:
-            raise HTTPException(status_code=404, detail="Orders not found")
-        return data
+            return data
+        
+    raise HTTPException(status_code=404, detail="Orders not found")
+        
