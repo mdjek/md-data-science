@@ -2,32 +2,32 @@ import redis
 import json
 from constants import REDIS_URL
 
-def connect_postgres(hostname, port, dbname, username, password):
-    try:
-        connection = psycopg2.connect(
-            host=hostname,
-            port=port,
-            database=dbname,
-            user=username,
-            password=password
-        )
-        return connection
+# def connect_postgres(hostname, port, dbname, username, password):
+#     try:
+#         connection = psycopg2.connect(
+#             host=hostname,
+#             port=port,
+#             database=dbname,
+#             user=username,
+#             password=password
+#         )
+#         return connection
 
-    except Exception as e:
-        print(f"Error connecting to PostgreSQL: {e}")
-        return None
+#     except Exception as e:
+#         print(f"Error connecting to PostgreSQL: {e}")
+#         return None
 
 
-def fetch_data_from_postgres(connection, query):
-    try:
-        cursor = connection.cursor()
-        cursor.execute(query)
-        records = cursor.fetchall()
-        return records
+# def fetch_data_from_postgres(connection, query):
+#     try:
+#         cursor = connection.cursor()
+#         cursor.execute(query)
+#         records = cursor.fetchall()
+#         return records
 
-    except Exception as e:
-        print(f"Error fetching data from PostgreSQL: {e}")
-        return None
+#     except Exception as e:
+#         print(f"Error fetching data from PostgreSQL: {e}")
+#         return None
     
 
 # def connect_redis(hostname, port, password=None):
@@ -48,7 +48,7 @@ def connect_redis():
         return None
     
     
-def set_redis_item(redis_client, item, key_prefix, key):
+def set_redis_item(redis_client, item, key_prefix, keys):
     item_json = dict()
 
     for k in item.__dict__:
@@ -56,26 +56,26 @@ def set_redis_item(redis_client, item, key_prefix, key):
             item_json[k] = item.__dict__[k]
 
     if item:
-        redis_key = f"{key_prefix}:{item.__dict__[key]}"
+        redis_key = f"{key_prefix}:{item.__dict__[keys[0]]}:{item.__dict__[keys[1]]}"
 
         # redis_client.hset(redis_key, mapping=json.dumps(item_json))
 
-        redis_client.set(redis_key, json.dumps(item_json),ex = 180)
+        redis_client.set(redis_key, json.dumps(item_json), ex = 180)
         pass
     else:
         print("Data inserted into Redis successfully.")
     return item
 
 
-def insert_data_into_redis(data, key_prefix, key: str):
+def insert_data_into_redis(data, key_prefix, keys: list):
     redis_client = connect_redis()
 
     try: 
         if (isinstance(data, list)):
             for item in data:
-                set_redis_item(redis_client, item, key_prefix, key)
+                set_redis_item(redis_client, item, key_prefix, keys)
         else:
-                set_redis_item(redis_client, data, key_prefix, key)
+                set_redis_item(redis_client, data, key_prefix, keys)
 
     except Exception as e:
         print(f"Error inserting data into Redis: {e}")
