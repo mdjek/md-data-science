@@ -71,7 +71,7 @@ class Warehouse:
 
     def add_product(self, product):
         self.products.append(product)
-        logging.info(f"Товар «{product.name}» добавлен на склад.")
+        logging.info(f"Товар «{product.name}» добавлен на склад. Количество: {product.quantity}, цена: {product.price}.")
 
     def remove_product(self, product_name):
         for product in self.products:
