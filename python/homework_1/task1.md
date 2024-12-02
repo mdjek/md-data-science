@@ -9,7 +9,7 @@ class Animal:
         self.sound = sound
 
     def makesound(self) -> None:
-        return f"{self.name} says: {self.sound}!"
+        return f"{self.name.lower()} says: {self.sound}!"
 
 
 class Cat(Animal):
@@ -18,7 +18,6 @@ class Cat(Animal):
         self.color = color
 
     def makesound(self) -> None:
-        super().makesound()
         print(f"{self.color} {super().makesound()}")
 
 
@@ -28,7 +27,6 @@ class Dog(Animal):
         self.color = color
 
     def makesound(self) -> None:
-        super().makesound()
         print(f"{self.color} {super().makesound()}")
 
 
