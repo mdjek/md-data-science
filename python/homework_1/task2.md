@@ -18,7 +18,7 @@ class Product:
             self.quantity += amount
             logging.info(f"Количество товара «{self.name}» увеличено на {amount}. Текущее количество: {self.quantity}")
         else:
-            logging.warning("Количество для увеличения должно быть положительным.")
+            logging.warning("Значение для увеличения должно быть > 0.")
 
     def decrement_quantity(self, amount):
         if amount > 0:
@@ -30,7 +30,7 @@ class Product:
             else:
                 logging.warning(f"Недостаточно товара «{self.name}» на складе для уменьшения на {amount}.")
         else:
-            logging.warning("Количество для уменьшения должно быть положительным.")
+            logging.warning("Значение для уменьшения должно быть > 0.")
 
     def calc_total_cost(self):
         total_cost = self.quantity * self.price
