@@ -50,7 +50,7 @@ class Seller:
 
             summ = quantity * product.price
             self.sales_report.append((product.name, quantity, summ))
-            logging.info(f"Продавец «{self.name}» продал {quantity} товара «{product.name}». Выручка: {summ} units")
+            logging.info(f"Продавец «{self.name}» продал {quantity} товара «{product.name}». Сумма: {summ} units")
         else:
             logging.warning(f"Товара «{product.name}» для продажи недостаточно.")
 
@@ -58,7 +58,7 @@ class Seller:
         report = f"Отчет о реализации товаров (продавец: {self.name}):\n"
 
         for sale in self.sales_report:
-            report += f"Товар: «{sale[0]}», Количество: {sale[1]}, Выручка: {sale[2]} units \n"
+            report += f"Товар: «{sale[0]}», Количество: {sale[1]}, Сумма: {sale[2]} units \n"
 
         logging.info(f"Сформирован отчёт о продажах продавца «{self.name}».")
         return report
