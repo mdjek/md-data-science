@@ -60,7 +60,7 @@ class Seller:
         for sale in self.sales_report:
             report += f"Товар: «{sale[0]}», Количество: {sale[1]}, Сумма: {sale[2]} units \n"
 
-        logging.info(f"Сформирован отчёт о продажах продавца «{self.name}».")
+        logging.info(f"Сформирован отчёт о реализации товаров (продавец «{self.name}»).")
         return report
 
 
