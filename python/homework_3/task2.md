@@ -21,7 +21,7 @@ def get_count_words(text: str, is_uniq_only=False):
 
 
 # Пример использования
-text = "Был холодный осенний день. Дул холодный осенний ветер ветер."
+text = "Был холодный осенний день. Дул холодный осенний ветер."
 word_count = get_count_words(text)
 unique_word_count = get_count_words(text, True)
 print(f"Всего слов: {word_count}; Количество уникальных слов: {unique_word_count}") # Всего слов: 9; Количество уникальных слов: 6
