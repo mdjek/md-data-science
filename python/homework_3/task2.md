@@ -17,7 +17,7 @@ def get_count_words(text: str, is_uniq_only=False):
     word_counts = Counter(words)
 
     # Возвращаем количество слов (уникальных или всех)
-    return len(word_counts if isUniqOnly else words)
+    return len(word_counts if is_uniq_only else words)
 
 
 # Пример использования
