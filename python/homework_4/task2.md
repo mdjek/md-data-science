@@ -8,7 +8,17 @@ def infinite_number_generator():
         yield number
 
 
-def apply_function_to_iterator(iterator, func):
+def combine_iterators(*iterators: Iterable) -> itertools.chain:
+    for iterator in iterators:
+        if not isinstance(iterator, Iterable):
+            raise TypeError("Аргументы не являются итерируемыми")
+    try:
+        return itertools.chain(*iterators)
+    except Exception as e:
+        raise Exception(f"Возникла ошибка при объединении итераторов: {e}")
+
+
+def apply_function_to_iterator(iterator, func) -> list:
     full_list = []
 
     for item in iterator:
@@ -21,24 +31,10 @@ def apply_function_to_iterator(iterator, func):
     return full_list
 
 
-def combine_iterators(*iterators: Iterable) -> itertools.chain:
-    for iterator in iterators:
-        if not isinstance(iterator, Iterable):
-            raise TypeError("Аргументы не являются итерируемыми")
-    try:
-        return itertools.chain(*iterators)
-    except Exception as e:
-        raise Exception(f"Возникла ошибка при объединении итераторов: {e}")
-
-
 # Бесконечный генератор чисел
 generator = infinite_number_generator()
 for _ in range(10):
     print(next(generator))
-
-# Применение функции к каждому элементу в итераторе
-iterator = [1, 2, 3, 4, "str1"]
-# apply_function_to_iterator(iterator, lambda x: x + x)
 
 # Пример объединения нескольких итераторов
 list1 = [1, 2, 3]
