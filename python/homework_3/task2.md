@@ -7,7 +7,7 @@ def clean_punctuation(str: str):
     return str.translate(str.maketrans("", "", string.punctuation))
 
 
-def get_count_words(text: str, isUniqOnly=False):
+def get_count_words(text: str, is_uniq_only=False):
     if not text:
         return 0
 
