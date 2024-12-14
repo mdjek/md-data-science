@@ -11,16 +11,17 @@ from sqlalchemy.orm import Session
 from pymongo import MongoClient
 from constants import MONGODB_URI, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
-# Настройка Mongo   
+# Настройка Mongo
 client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=1000)
-db = client['mongo_profi_db']
-collection = db['users']
+db = client["mongo_profi_db"]
+collection = db["users"]
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Настройка паролей
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 # Зависимости для получения текущего пользователя
 async def get_current_client(token: str = Depends(oauth2_scheme)):
@@ -63,13 +64,11 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
     if password_check:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": form_data.username}, expires_delta=access_token_expires
-        )
+        access_token = create_access_token(data={"sub": form_data.username}, expires_delta=access_token_expires)
         return {"access_token": access_token, "token_type": "bearer"}
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
-        ) 
+        )

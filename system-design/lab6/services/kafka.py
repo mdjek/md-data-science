@@ -9,14 +9,16 @@ from utils import connect_redis
 redis_client = connect_redis()
 
 conf = {
-    'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS,  # Адрес Kafka брокера
-    'group.id': KAFKA_TOPIC,  # ID группы заказов
-    'auto.offset.reset': 'earliest'  # Начинать с самого раннего сообщения
+    "bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,  # Адрес Kafka брокера
+    "group.id": KAFKA_TOPIC,  # ID группы заказов
+    "auto.offset.reset": "earliest",  # Начинать с самого раннего сообщения
 }
+
 
 # Kafka Producer
 def get_kafka_producer():
     return Producer({"bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS})
+
 
 # Kafka Consumer
 def kafka_consumer_service(callback):
@@ -46,7 +48,7 @@ def kafka_consumer_service(callback):
 
             # Обновление кеша
             cache_key = f"routes:user_id:{route_data['user_id']}"
-            routes = db.query(RouteDB).filter(RouteDB.user_id == route_data['user_id']).all()
+            routes = db.query(RouteDB).filter(RouteDB.user_id == route_data["user_id"]).all()
             redis_client.set(cache_key, json.dumps([route.dict() for route in routes]))
         finally:
             db.close()
