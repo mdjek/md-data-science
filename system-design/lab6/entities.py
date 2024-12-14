@@ -7,6 +7,7 @@ Base = declarative_base()
 
 # --- MongoDB models
 
+
 ## Users models
 class CreateUserEntity(BaseModel):
     username: str
@@ -14,11 +15,13 @@ class CreateUserEntity(BaseModel):
     last_name: str
     email: str
 
+
 class ResponseUserEntity(CreateUserEntity):
     id: str
 
 
 # --- Postgresql models
+
 
 ## Orders models
 class CreateOrderEntity(BaseModel):
@@ -26,17 +29,21 @@ class CreateOrderEntity(BaseModel):
     description: str
     user_id: int
 
+
 class ResponseOrderEntity(CreateOrderEntity):
     id: int
 
+
 ## Task models
-class CreateTaskEntity(BaseModel):    
+class CreateTaskEntity(BaseModel):
     name: str
     description: str
     order_id: int
 
+
 class ResponseTaskEntity(CreateTaskEntity):
     id: int
+
 
 ## Postgresql db models
 class User(Base):
@@ -48,12 +55,14 @@ class User(Base):
     email = Column(String, index=True)
     password = Column(String)
 
+
 class Order(Base):
     __tablename__ = "orders"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(String)
     user_id = Column(Integer, index=True)
+
 
 class Task(Base):
     __tablename__ = "tasks"
