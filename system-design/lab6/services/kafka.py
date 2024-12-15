@@ -48,8 +48,14 @@ def kafka_consumer_service(callback):
 
             # Обновление кеша
             cache_key = f"routes:user_id:{route_data['user_id']}"
-            routes = db.query(RouteDB).filter(RouteDB.user_id == route_data["user_id"]).all()
-            redis_client.set(cache_key, json.dumps([route.dict() for route in routes]))
+            routes = (
+                db.query(RouteDB)
+                .filter(RouteDB.user_id == route_data["user_id"])
+                .all()
+            )
+            redis_client.set(
+                cache_key, json.dumps([route.dict() for route in routes])
+            )
         finally:
             db.close()
 

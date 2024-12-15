@@ -6,14 +6,17 @@ from init_pg_db import get_db
 from sqlalchemy.orm import Session
 from utils import insert_data_into_redis, get_data_from_redis
 from confluent_kafka import Producer
-# from services.kafka import get_kafka_producer, kafka_consumer_service
+from services.kafka import get_kafka_producer, kafka_consumer_service
 
 router = APIRouter()
 
 
 # GET /orders - Получить список заказов (требует аутентификации)
 @router.get(
-    "/orders", response_model=List[ResponseOrderEntity], tags=["Orders"], dependencies=[Depends(get_current_client)]
+    "/orders",
+    response_model=List[ResponseOrderEntity],
+    tags=["Orders"],
+    dependencies=[Depends(get_current_client)],
 )
 # @router.get("/orders", response_model=List[ResponseOrderEntity], tags=["Orders"])
 def get_orders(db: Session = Depends(get_db)):
@@ -32,10 +35,17 @@ def get_orders(db: Session = Depends(get_db)):
 
 
 # POST /orders - Создать заказ (требует аутентификации)
-@router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"], dependencies=[Depends(get_current_client)])
+@router.post(
+    "/orders",
+    response_model=ResponseOrderEntity,
+    tags=["Orders"],
+    dependencies=[Depends(get_current_client)],
+)
 # @router.post("/orders", response_model=ResponseOrderEntity, tags=["Orders"])
 def create_order(
-    new_order: CreateOrderEntity, db: Session = Depends(get_db), producer: Producer = Depends(get_kafka_producer)
+    new_order: CreateOrderEntity,
+    db: Session = Depends(get_db),
+    producer: Producer = Depends(get_kafka_producer),
 ):
     db_order = Order(**new_order.dict())
     db.add(db_order)
@@ -67,11 +77,21 @@ def edit_order(
     order = db.query(Order).filter(Order.id == order_id).first()
 
     if order:
-        order.name = updated_order.name if isinstance(updated_order.name, str) else order.name
-        order.description = (
-            updated_order.description if isinstance(updated_order.description, str) else order.description
+        order.name = (
+            updated_order.name
+            if isinstance(updated_order.name, str)
+            else order.name
         )
-        order.user_id = updated_order.user_id if isinstance(updated_order.user_id, int) else order.user_id
+        order.description = (
+            updated_order.description
+            if isinstance(updated_order.description, str)
+            else order.description
+        )
+        order.user_id = (
+            updated_order.user_id
+            if isinstance(updated_order.user_id, int)
+            else order.user_id
+        )
 
         db.commit()
         db.refresh(order)
