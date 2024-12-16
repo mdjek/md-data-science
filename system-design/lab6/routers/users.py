@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 
 from routers.auth import get_current_client
-from entities import ResponseUserEntity, CreateUserEntity, User
+from entities import ResponseUserEntity, CreateUserEntity
 from init_pg_db import get_db
 from sqlalchemy.orm import Session
 from pymongo import MongoClient
@@ -18,7 +18,10 @@ router = APIRouter()
 
 # GET /users - Получить список пользователей (требует аутентификации)
 @router.get(
-    "/users", response_model=List[ResponseUserEntity], tags=["Users"], dependencies=[Depends(get_current_client)]
+    "/users",
+    response_model=List[ResponseUserEntity],
+    tags=["Users"],
+    dependencies=[Depends(get_current_client)],
 )
 # @router.get("/users", response_model=List[ResponseUserEntity], tags=["Users"])
 def get_users():
@@ -31,7 +34,12 @@ def get_users():
 
 
 # POST /users - Создать нового пользователя (требует аутентификации)
-@router.post("/users", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)])
+@router.post(
+    "/users",
+    response_model=ResponseUserEntity,
+    tags=["Users"],
+    dependencies=[Depends(get_current_client)],
+)
 # @router.post("/users", response_model=ResponseUserEntity, tags=["Users"])
 def create_user(new_user: CreateUserEntity, db: Session = Depends(get_db)):
     query_by_user_name = {"username": new_user.username}
@@ -41,10 +49,14 @@ def create_user(new_user: CreateUserEntity, db: Session = Depends(get_db)):
     user_with_email = collection.find_one(query_by_email)
 
     if user_with_username:
-        raise HTTPException(status_code=404, detail="User with such username already exist")
+        raise HTTPException(
+            status_code=404, detail="User with such username already exist"
+        )
 
     if user_with_email:
-        raise HTTPException(status_code=404, detail="User with such email already exist")
+        raise HTTPException(
+            status_code=404, detail="User with such email already exist"
+        )
 
     insert_user = new_user.dict()
     # insert_user["password"] = pwd_context.hash(insert_user["password"])
@@ -56,7 +68,10 @@ def create_user(new_user: CreateUserEntity, db: Session = Depends(get_db)):
 
 # GET /users/{username} - Поиск пользователя по username (требует аутентификации)
 @router.get(
-    "/users/{username}", response_model=ResponseUserEntity, tags=["Users"], dependencies=[Depends(get_current_client)]
+    "/users/{username}",
+    response_model=ResponseUserEntity,
+    tags=["Users"],
+    dependencies=[Depends(get_current_client)],
 )
 # @router.get("/users/{username}", response_model=ResponseUserEntity, tags=["Users"])
 def get_user(username: str, db: Session = Depends(get_db)):
@@ -67,4 +82,6 @@ def get_user(username: str, db: Session = Depends(get_db)):
         user["id"] = str(user["_id"])
         return user
     else:
-        raise HTTPException(status_code=404, detail="User with such username does not exist")
+        raise HTTPException(
+            status_code=404, detail="User with such username does not exist"
+        )

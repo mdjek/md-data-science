@@ -38,8 +38,8 @@ services:
     ports:
       - "27017:27017"
 
-  redis:
-    container_name: redis
+  cache:
+    container_name: cache
     image: redis:6.2-alpine
     restart: always
     ports:

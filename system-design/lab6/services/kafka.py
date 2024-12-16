@@ -1,16 +1,17 @@
 from confluent_kafka import Producer, Consumer, KafkaError
 import json
-from models import RouteDB
-from dependencies import SessionLocal
-from ..constants import KAFKA_BOOTSTRAP_SERVERS, KAFKA_TOPIC
-from utils import connect_redis
+from entities import Order
+from init_pg_db import SessionLocal
+from constants import KAFKA_BOOTSTRAP_SERVERS, KAFKA_ORDER_TOPIC
+from utils import connect_redis, insert_data_into_redis
+import threading
 
-# Настройка Redis client
+# Redis client
 redis_client = connect_redis()
 
 conf = {
     "bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,  # Адрес Kafka брокера
-    "group.id": KAFKA_TOPIC,  # ID группы заказов
+    "group.id": KAFKA_ORDER_TOPIC,  # ID группы заказов
     "auto.offset.reset": "earliest",  # Начинать с самого раннего сообщения
 }
 
@@ -21,9 +22,9 @@ def get_kafka_producer():
 
 
 # Kafka Consumer
-def kafka_consumer_service(callback):
+def kafka_consumer_service():
     consumer = Consumer(**conf)
-    consumer.subscribe([KAFKA_TOPIC])
+    consumer.subscribe([KAFKA_ORDER_TOPIC])
 
     while True:
         msg = consumer.poll(1.0)  # Ожидание сообщения в течение 1 секунды
@@ -38,25 +39,65 @@ def kafka_consumer_service(callback):
                 break
 
         # Обработка сообщения
-        route_data = json.loads(msg.value().decode("utf-8"))
-        db = SessionLocal()
-        try:
-            db_route = RouteDB(**route_data)
-            db.add(db_route)
-            db.commit()
-            db.refresh(db_route)
+        order_data = json.loads(msg.value().decode("utf-8"))
 
-            # Обновление кеша
-            cache_key = f"routes:user_id:{route_data['user_id']}"
-            routes = (
-                db.query(RouteDB)
-                .filter(RouteDB.user_id == route_data["user_id"])
-                .all()
-            )
-            redis_client.set(
-                cache_key, json.dumps([route.dict() for route in routes])
-            )
+        try:
+            db = SessionLocal()
+
+            # put
+            if order_data.get("id"):
+                existing_order = (
+                    db.query(Order)
+                    .filter(Order.id == order_data.get("id"))
+                    .first()
+                )
+
+                name = order_data.get("name")
+                description = order_data.get("description")
+                user_id = order_data.get("user_id")
+
+                existing_order.name = (
+                    name if isinstance(name, str) else existing_order.name
+                )
+                existing_order.description = (
+                    description
+                    if isinstance(description, str)
+                    else existing_order.description
+                )
+                existing_order.user_id = (
+                    user_id
+                    if isinstance(user_id, int)
+                    else existing_order.user_id
+                )
+
+                db.commit()
+                db.refresh(existing_order)
+
+                data = db.query(Order).all()
+
+                if data:
+                    insert_data_into_redis(data, "orders", ["id", "user_id"])
+
+            # post
+            else:
+                db_order = Order(**order_data)
+
+                db.add(db_order)
+                db.commit()
+                db.refresh(db_order)
+
+                data = db.query(Order).all()
+
+                if data:
+                    insert_data_into_redis(data, "orders", ["id", "user_id"])
+
         finally:
             db.close()
 
     consumer.close()
+
+
+# Запуск Kafka Consumer в фоне
+def run_kafka_consumer():
+    thread = threading.Thread(target=kafka_consumer_service, daemon=True)
+    thread.start()

@@ -1,13 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
+
 from routers.auth import get_current_client
 from entities import ResponseOrderEntity, CreateOrderEntity, Order
 from init_pg_db import get_db
 from sqlalchemy.orm import Session
 from utils import insert_data_into_redis, get_data_from_redis
 from confluent_kafka import Producer
-from services.kafka import get_kafka_producer, kafka_consumer_service
+from services.kafka import get_kafka_producer, run_kafka_consumer
+from constants import KAFKA_ORDER_TOPIC
+import json
+import uuid
 
+run_kafka_consumer()
 router = APIRouter()
 
 
@@ -37,7 +42,7 @@ def get_orders(db: Session = Depends(get_db)):
 # POST /orders - Создать заказ (требует аутентификации)
 @router.post(
     "/orders",
-    response_model=ResponseOrderEntity,
+    response_model=CreateOrderEntity,
     tags=["Orders"],
     dependencies=[Depends(get_current_client)],
 )
@@ -47,17 +52,14 @@ def create_order(
     db: Session = Depends(get_db),
     producer: Producer = Depends(get_kafka_producer),
 ):
-    db_order = Order(**new_order.dict())
-    db.add(db_order)
-    db.commit()
-    db.refresh(db_order)
+    producer.produce(
+        KAFKA_ORDER_TOPIC,
+        key=str(f"{uuid.uuid4()}_{new_order.name}"),
+        value=json.dumps(new_order.dict()).encode("utf-8"),
+    )
+    producer.flush()
 
-    data = db.query(Order).all()
-
-    if data:
-        insert_data_into_redis(data, "orders", ["id", "user_id"])
-
-    return db_order
+    return new_order
 
 
 # PUT /orders/{order_id} - Редактировать существующий заказ (требует аутентификации)
@@ -74,36 +76,16 @@ def edit_order(
     db: Session = Depends(get_db),
     producer: Producer = Depends(get_kafka_producer),
 ):
-    order = db.query(Order).filter(Order.id == order_id).first()
+    producer.produce(
+        KAFKA_ORDER_TOPIC,
+        key=str(order_id),
+        value=json.dumps({**updated_order.dict(), "id": order_id}).encode(
+            "utf-8"
+        ),
+    )
+    producer.flush()
 
-    if order:
-        order.name = (
-            updated_order.name
-            if isinstance(updated_order.name, str)
-            else order.name
-        )
-        order.description = (
-            updated_order.description
-            if isinstance(updated_order.description, str)
-            else order.description
-        )
-        order.user_id = (
-            updated_order.user_id
-            if isinstance(updated_order.user_id, int)
-            else order.user_id
-        )
-
-        db.commit()
-        db.refresh(order)
-
-        data = db.query(Order).all()
-
-        if data:
-            insert_data_into_redis(data, "orders", ["id", "user_id"])
-
-        return order
-
-    raise HTTPException(status_code=404, detail="Order not found")
+    return {**updated_order.dict(), "id": order_id}
 
 
 # GET /orders/user/{user_id} - Получить всех заказы для пользователя (требует аутентификации)
