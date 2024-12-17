@@ -1,7 +1,7 @@
 from confluent_kafka import Producer, Consumer, KafkaError
 import json
 from entities import Order
-from init_pg_db import SessionLocal
+from init_pg_db import db_context
 from constants import KAFKA_BOOTSTRAP_SERVERS, KAFKA_ORDER_TOPIC
 from utils import connect_redis, insert_data_into_redis
 import threading
@@ -41,58 +41,61 @@ def kafka_consumer_service():
         # Обработка сообщения
         order_data = json.loads(msg.value().decode("utf-8"))
 
-        try:
-            db = SessionLocal()
+        with db_context() as db:
+            try:
+                # put
+                if order_data.get("id"):
+                    existing_order = (
+                        db.query(Order)
+                        .filter(Order.id == order_data.get("id"))
+                        .first()
+                    )
 
-            # put
-            if order_data.get("id"):
-                existing_order = (
-                    db.query(Order)
-                    .filter(Order.id == order_data.get("id"))
-                    .first()
-                )
+                    name = order_data.get("name")
+                    description = order_data.get("description")
+                    user_id = order_data.get("user_id")
 
-                name = order_data.get("name")
-                description = order_data.get("description")
-                user_id = order_data.get("user_id")
+                    existing_order.name = (
+                        name if isinstance(name, str) else existing_order.name
+                    )
+                    existing_order.description = (
+                        description
+                        if isinstance(description, str)
+                        else existing_order.description
+                    )
+                    existing_order.user_id = (
+                        user_id
+                        if isinstance(user_id, int)
+                        else existing_order.user_id
+                    )
 
-                existing_order.name = (
-                    name if isinstance(name, str) else existing_order.name
-                )
-                existing_order.description = (
-                    description
-                    if isinstance(description, str)
-                    else existing_order.description
-                )
-                existing_order.user_id = (
-                    user_id
-                    if isinstance(user_id, int)
-                    else existing_order.user_id
-                )
+                    db.commit()
+                    db.refresh(existing_order)
 
-                db.commit()
-                db.refresh(existing_order)
+                    data = db.query(Order).all()
 
-                data = db.query(Order).all()
+                    if data:
+                        insert_data_into_redis(
+                            data, "orders", ["id", "user_id"]
+                        )
 
-                if data:
-                    insert_data_into_redis(data, "orders", ["id", "user_id"])
+                # post
+                else:
+                    db_order = Order(**order_data)
 
-            # post
-            else:
-                db_order = Order(**order_data)
+                    db.add(db_order)
+                    db.commit()
+                    db.refresh(db_order)
 
-                db.add(db_order)
-                db.commit()
-                db.refresh(db_order)
+                    data = db.query(Order).all()
 
-                data = db.query(Order).all()
-
-                if data:
-                    insert_data_into_redis(data, "orders", ["id", "user_id"])
-
-        finally:
-            db.close()
+                    if data:
+                        insert_data_into_redis(
+                            data, "orders", ["id", "user_id"]
+                        )
+            except Exception as e:
+                print(f"Processing kafka message error: {e}")
+                return None
 
     consumer.close()
 

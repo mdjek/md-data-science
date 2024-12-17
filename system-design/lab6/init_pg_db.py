@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from entities import Base
 from constants import POSTGRESQL_DATABASE_URL
+from contextlib import contextmanager
 
 engine = create_engine(POSTGRESQL_DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -17,3 +18,6 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+db_context = contextmanager(get_db)
