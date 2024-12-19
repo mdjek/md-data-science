@@ -97,6 +97,9 @@ def kafka_consumer_service():
                 print(f"Processing kafka message error: {e}")
                 return None
 
+            # finally:
+            #     db.close()
+
     consumer.close()
 
 
